@@ -1,139 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pontos Turísticos do Brasil</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-      color: #333;
+    #map {
+      height: 400px;
+      margin-top: 20px;
     }
-
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .state-description {
+      margin-top: 20px;
     }
-
-    h1 {
-      text-align: center;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-
-    .tourist-point {
-      margin-bottom: 20px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #f9f9f9;
-    }
-
-    .tourist-point img {
+    .state-image {
       max-width: 100%;
+      height: auto;
+      margin-top: 10px;
       border-radius: 8px;
-    }
-
-    .tourist-point h2 {
-      margin: 10px 0;
-    }
-
-    .tourist-point p {
-      margin: 5px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Pontos Turísticos do Brasil</h1>
-
-    <select id="stateSelector">
-      <option value="">Selecione um estado</option>
-      <option value="SP">São Paulo</option>
-      <option value="RJ">Rio de Janeiro</option>
-      <option value="BA">Bahia</option>
-      <option value="BA">Minas Gerais</option>
-      <option value="BA">Goias</option>
-      <option value="BA">Rio Grande do Sul</option>
-      <option value="BA">Paraná</option>
-      <option value="BA">Amazonas</option>
-      <option value="BA">Santa Catarina</option>
-      <option value="BA">Ceará</option>
-      <option value="BA">Pernambuco</option>
-      <option value="BA">Pará</option>
-      <option value="BA">Espírito Santo</option>
-      <option value="BA">Maranhão</option>
-      <option value="BA">Mato Grosso do Sul</option>
-      <option value="BA">Mato Grosso</option>
-      <option value="BA">Piauí</option>
-      <option value="BA">Paraíba</option>
-      <option value="BA">Rondônia</option>
-      <option value="BA">Roraima</option>
-      <option value="BA">Alagoas</option>
-      <option value="BA">Tocantins</option>
-      <option value="BA">Sergipe</option>
-      <option value="BA">Acre</option>
-      
-      <!-- Adicione os outros estados aqui -->
-    </select>
-
-    <div id="pointsContainer">
-      <!-- Os pontos turísticos aparecerão aqui -->
+    <h1 class="text-center my-4">Pontos Turísticos do Brasil</h1>
+    
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <select id="stateSelector" class="form-select">
+          <option value="">Selecione um estado</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="map"></div>
+    <div class="state-description">
+      <h3>Descrição do Estado</h3>
+      <p id="stateDescription">Selecione um estado para ver sua descrição.</p>
+      <img id="stateImage" class="state-image" src="" alt="Imagem do estado selecionado">
     </div>
   </div>
 
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <script>
-    // Dados dos pontos turísticos (pode ser carregado de uma API ou JSON externo)
-    const touristPoints = {
-      SP: [
-        { name: "Avenida Paulista", description: "Famosa avenida de São Paulo.", image: "https://via.placeholder.com/300" },
-        { name: "Parque do Ibirapuera", description: "Grande parque urbano.", image: "https://via.placeholder.com/300" }
-      ],
-      RJ: [
-        { name: "Cristo Redentor", description: "Estátua icônica no Rio de Janeiro.", image: "https://via.placeholder.com/300" },
-        { name: "Pão de Açúcar", description: "Montanha com vista deslumbrante.", image: "https://via.placeholder.com/300" }
-      ],
-      BA: [
-        { name: "Pelourinho", description: "Centro histórico de Salvador.", image: "https://via.placeholder.com/300" },
-        { name: "Praia do Forte", description: "Praia famosa da Bahia.", image: "https://via.placeholder.com/300" }
-      ]
-    };
+    // Inicializa o mapa
+    const map = L.map('map').setView([-14.2350, -51.9253], 4); // Coordenadas centrais do Brasil
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Dados dos estados com imagens
+    const stateData = [
+      { 
+        estado: "Acre", 
+        descricao: "O estado oferece atrações como o Parque Nacional da Serra do Divisor e a histórica cidade de Rio Branco.", 
+        latitude: -9.0238, 
+        longitude: -70.812, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/4/45/Acre_Brasil.jpg" 
+      },
+      { 
+        estado: "Amazonas", 
+        descricao: "A casa da floresta amazônica, com Manaus e o Encontro das Águas como atrações principais.", 
+        latitude: -3.119, 
+        longitude: -60.021, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/2/2d/Amazonas_Brasil.jpg" 
+      },
+      { 
+        estado: "Bahia", 
+        descricao: "Salvador é um ícone cultural e histórico, além das praias da Chapada Diamantina.", 
+        latitude: -12.971, 
+        longitude: -38.501, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Bahia_Brasil.jpg" 
+      },
+      { 
+        estado: "Ceará", 
+        descricao: "Conhecido por Jericoacoara e suas praias incríveis como Canoa Quebrada e Praia do Futuro.", 
+        latitude: -3.7172, 
+        longitude: -38.5433, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/f/f5/Ceara_Brasil.jpg" 
+      },
+      { 
+        estado: "Espírito Santo", 
+        descricao: "Com belas praias e a famosa cidade de Vitória, o estado é perfeito para o ecoturismo e turismo cultural.", 
+        latitude: -20.3155, 
+        longitude: -40.3128, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/3/32/Espírito_Santo_Brasil.jpg" 
+      },
+      { 
+        estado: "Minas Gerais", 
+        descricao: "O estado é conhecido por suas cidades históricas, como Ouro Preto e Tiradentes, além de montanhas e cachoeiras.", 
+        latitude: -18.512, 
+        longitude: -44.123, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/c/c4/Minas_Gerais_Brasil.jpg" 
+      },
+      { 
+        estado: "Rio de Janeiro", 
+        descricao: "Conhecido pelo Cristo Redentor, Pão de Açúcar e praias icônicas como Copacabana e Ipanema.", 
+        latitude: -22.9068, 
+        longitude: -43.1729, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Rio_de_Janeiro_Brasil.jpg" 
+      },
+      { 
+        estado: "São Paulo", 
+        descricao: "A maior cidade do Brasil, São Paulo oferece uma mistura de cultura, arte e gastronomia, com atrações como o Parque do Ibirapuera.", 
+        latitude: -23.5505, 
+        longitude: -46.6333, 
+        imagem: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Sao_Paulo_Brasil.jpg" 
+      },
+      // Continue com outros estados seguindo o mesmo formato
+    ];
 
     const stateSelector = document.getElementById('stateSelector');
-    const pointsContainer = document.getElementById('pointsContainer');
+    const stateDescription = document.getElementById('stateDescription');
+    const stateImage = document.getElementById('stateImage');
 
-    // Função para exibir pontos turísticos com base no estado selecionado
+    // Popula o seletor de estados
+    stateData.forEach(state => {
+      const option = document.createElement('option');
+      option.value = state.estado;
+      option.textContent = state.estado;
+      stateSelector.appendChild(option);
+    });
+
+    // Atualiza mapa, descrição e imagem ao selecionar um estado
     stateSelector.addEventListener('change', () => {
-      const selectedState = stateSelector.value;
-      pointsContainer.innerHTML = "";
+      const selectedState = stateData.find(state => state.estado === stateSelector.value);
+      if (selectedState) {
+        stateDescription.textContent = selectedState.descricao;
+        stateImage.src = selectedState.imagem;
+        stateImage.alt = `Imagem de ${selectedState.estado}`;
 
-      if (selectedState && touristPoints[selectedState]) {
-        touristPoints[selectedState].forEach(point => {
-          const pointElement = document.createElement('div');
-          pointElement.className = 'tourist-point';
-          pointElement.innerHTML = `
-            <img src="${point.image}" alt="${point.name}">
-            <h2>${point.name}</h2>
-            <p>${point.description}</p>
-          `;
-          pointsContainer.appendChild(pointElement);
+        // Remove marcadores antigos
+        map.eachLayer(layer => {
+          if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+          }
         });
-      } else if (selectedState) {
-        pointsContainer.innerHTML = "<p>Nenhum ponto turístico encontrado para este estado.</p>";
+
+        // Adiciona marcador ao mapa
+        L.marker([selectedState.latitude, selectedState.longitude])
+          .addTo(map)
+          .bindPopup(`<b>${selectedState.estado}</b><br>${selectedState.descricao}`).openPopup();
+
+        // Centraliza o mapa
+        map.setView([selectedState.latitude, selectedState.longitude], 6);
+      } else {
+        stateDescription.textContent = "Selecione um estado para ver sua descrição.";
+        stateImage.src = "";
+        stateImage.alt = "";
       }
     });
   </script>
 </body>
 </html>
+
+ 
