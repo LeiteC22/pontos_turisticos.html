@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pontos Turísticos do Brasil</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .tourist-point {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .tourist-point img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .tourist-point h2 {
+      margin: 10px 0;
+    }
+
+    .tourist-point p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pontos Turísticos do Brasil</h1>
+
+    <select id="stateSelector">
+      <option value="">Selecione um estado</option>
+      <option value="SP">São Paulo</option>
+      <option value="RJ">Rio de Janeiro</option>
+      <option value="BA">Bahia</option>
+      <!-- Adicione os outros estados aqui -->
+    </select>
+
+    <div id="pointsContainer">
+      <!-- Os pontos turísticos aparecerão aqui -->
+    </div>
+  </div>
+
+  <script>
+    // Dados dos pontos turísticos (pode ser carregado de uma API ou JSON externo)
+    const touristPoints = {
+      SP: [
+        { name: "Avenida Paulista", description: "Famosa avenida de São Paulo.", image: "https://via.placeholder.com/300" },
+        { name: "Parque do Ibirapuera", description: "Grande parque urbano.", image: "https://via.placeholder.com/300" }
+      ],
+      RJ: [
+        { name: "Cristo Redentor", description: "Estátua icônica no Rio de Janeiro.", image: "https://via.placeholder.com/300" },
+        { name: "Pão de Açúcar", description: "Montanha com vista deslumbrante.", image: "https://via.placeholder.com/300" }
+      ],
+      BA: [
+        { name: "Pelourinho", description: "Centro histórico de Salvador.", image: "https://via.placeholder.com/300" },
+        { name: "Praia do Forte", description: "Praia famosa da Bahia.", image: "https://via.placeholder.com/300" }
+      ]
+    };
+
+    const stateSelector = document.getElementById('stateSelector');
+    const pointsContainer = document.getElementById('pointsContainer');
+
+    // Função para exibir pontos turísticos com base no estado selecionado
+    stateSelector.addEventListener('change', () => {
+      const selectedState = stateSelector.value;
+      pointsContainer.innerHTML = "";
+
+      if (selectedState && touristPoints[selectedState]) {
+        touristPoints[selectedState].forEach(point => {
+          const pointElement = document.createElement('div');
+          pointElement.className = 'tourist-point';
+          pointElement.innerHTML = `
+            <img src="${point.image}" alt="${point.name}">
+            <h2>${point.name}</h2>
+            <p>${point.description}</p>
+          `;
+          pointsContainer.appendChild(pointElement);
+        });
+      } else if (selectedState) {
+        pointsContainer.innerHTML = "<p>Nenhum ponto turístico encontrado para este estado.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
